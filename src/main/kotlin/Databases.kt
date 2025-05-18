@@ -10,16 +10,18 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import java.time.Duration
-import kotlin.time.Duration.Companion.seconds
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.kotlin.datetime.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.Console
 
-fun Application.configureRouting() {
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        // Static plugin. Try to access `/static/index.html`
-        staticResources("/static", "static")
-    }
+fun Application.configureDatabases() {
+    val database = Database.connect(
+        url = "jdbc:postgresql://localhost:5432/postgres",
+        user = "postgres",
+        driver = "org.postgresql.Driver",
+        password = "password",
+    )
 }
+

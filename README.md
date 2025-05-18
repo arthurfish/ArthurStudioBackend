@@ -12,9 +12,14 @@ Here are some useful links to get you started:
 
 Here's a list of features included in this project:
 
-| Name                                               | Description                                                 |
-| ----------------------------------------------------|------------------------------------------------------------- |
-| [Routing](https://start.ktor.io/p/routing-default) | Allows to define structured routes and associated handlers. |
+| Name                                                                   | Description                                                                        |
+| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
+| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
+| [WebSockets](https://start.ktor.io/p/ktor-websockets)                  | Adds WebSocket protocol support for bidirectional client connections               |
+| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
+| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
+| [Exposed](https://start.ktor.io/p/exposed)                             | Adds Exposed database to your application                                          |
+| [Static Content](https://start.ktor.io/p/static-content)               | Serves static files from defined locations                                         |
 
 ## Building & Running
 

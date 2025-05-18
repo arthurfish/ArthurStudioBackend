@@ -10,16 +10,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.serialization.json.Json
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.exposed.sql.*
 
-fun Application.configureRouting() {
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        // Static plugin. Try to access `/static/index.html`
-        staticResources("/static", "static")
-    }
+fun Application.configureSerialization() {
+  install(ContentNegotiation) {
+    json(Json {
+      prettyPrint = true
+      isLenient = true
+    })
+  }
 }
