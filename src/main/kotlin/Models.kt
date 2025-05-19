@@ -1,7 +1,11 @@
 package io.github.arthurfish
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.*
+import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 
 typealias Icon = String
 
@@ -47,7 +51,7 @@ data class RestEvent(
   val content: String,
   val serialNumber: Long,
   val id: String,
-  val createAt: LocalDateTime,
+  val createAt: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
 )
 /* Transmission Data Structure*/
 @Serializable
@@ -55,5 +59,5 @@ data class TransmissionMessage (
   val type: String,
   val requestedSerialNumber: Long? = null,
   val currentSerialNumber: Long? = null,
-  val event: RestEvent?,
+  val event: RestEvent? = null,
 )

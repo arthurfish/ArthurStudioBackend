@@ -16,12 +16,13 @@ import org.jetbrains.exposed.sql.kotlin.datetime.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.Console
 
-fun Application.configureDatabases() {
+fun Application.configureDatabases(): Database {
     val database = Database.connect(
         url = "jdbc:postgresql://localhost:5432/postgres",
         user = "postgres",
         driver = "org.postgresql.Driver",
         password = "password",
     )
+    return database
 }
 

@@ -9,11 +9,9 @@ import org.jetbrains.exposed.sql.kotlin.datetime.*
 import kotlin.math.max
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+
+import kotlin.uuid.*
 
 object IncrementOnly{
   private var _serverSideMaxSerialNumber: Long = 0
@@ -25,6 +23,7 @@ object IncrementOnly{
 }
 
 class RestEventStoreService(database: Database) {
+  @OptIn(ExperimentalUuidApi::class)
   fun initDatabase(){
     transaction {
       try{
@@ -32,35 +31,50 @@ class RestEventStoreService(database: Database) {
       }catch(e: Exception){ }
 
       SchemaUtils.create(RestEventTable)
+
+      var counter: Long = 1
       RestEventTable.insert {
+        it[id] = Uuid.random().toString()
         it[resourceUrl] = "/vendor"
         it[httpVerb] = "POST"
         it[content] = Json.encodeToString(Vendor("volcengine", "6c57e60f-570e-4af3-afb3-8cd5dc29c9af", "https://ark.cn-beijing.volces.com/api/v3/"))
+        it[serialNumber] = counter as Long
       }
+      counter++
 
       RestEventTable.insert {
+        it[id] = Uuid.random().toString()
         it[resourceUrl] = "/model"
         it[httpVerb] = "POST"
         it[content] = Json.encodeToString(Model("deepseek-v3", "text-generate"))
+        it[serialNumber] = counter as Long
       }
+      counter++
 
       RestEventTable.insert{
+        it[id] = Uuid.random().toString()
         it[resourceUrl] = "/session"
         it[httpVerb] = "POST"
         it[content] = Json.encodeToString(Session(keywords = "what, the, fuck"))
+        it[serialNumber] = counter as Long
       }
+      counter++
 
       RestEventTable.insert {
+        it[id] = Uuid.random().toString()
         it[resourceUrl] = "/message"
         it[httpVerb] = "POST"
         it[content] = Json.encodeToString(Message("user", "text/plain", "*?#".repeat(10)))
+        it[serialNumber] = counter as Long
       }
-      IncrementOnly.serverSideMaxSerialNumber = RestEventTable.selectAll().count()
+      counter++
+
+      IncrementOnly.serverSideMaxSerialNumber = counter as Long
     }
   }
 
   object RestEventTable: Table("rest_event") {
-    val id = varchar("id", 18)
+    val id = varchar("id", 36)
     val createAt = datetime("create_at").defaultExpression(CurrentDateTime)
     val resourceUrl = varchar("resource_url", 1024)
     val httpVerb = varchar("http_verb", 16)

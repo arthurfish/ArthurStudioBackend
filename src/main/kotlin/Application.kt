@@ -7,8 +7,10 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    configureSockets()
     configureSerialization()
-    configureDatabases()
+    val database = configureDatabases()
+    val restEventStoreService = RestEventStoreService(database)
+    restEventStoreService.initDatabase()
+    configureSockets(restEventStoreService)
     configureRouting()
 }

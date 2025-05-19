@@ -1,6 +1,8 @@
 package io.github.arthurfish
 
 import io.ktor.http.*
+import io.ktor.serialization.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
@@ -23,29 +25,33 @@ fun Application.configureSockets(restEventStoreService: RestEventStoreService) {
     timeout = 15.seconds
     maxFrameSize = Long.MAX_VALUE
     masking = false
+    contentConverter = KotlinxWebsocketSerializationConverter(Json)
   }
   routing {
     webSocket("/ws") { // websocketSession
-      for (frame in incoming) {
+      while (true) {
         val transmissionMessage = receiveDeserialized<TransmissionMessage>() ?: continue
+        println(transmissionMessage)
         if (transmissionMessage.type.lowercase() == "request" && transmissionMessage.requestedSerialNumber != null) {
           val retrievedEvent = restEventStoreService.getEventBySerialNumber(transmissionMessage.requestedSerialNumber)
-          retrievedEvent ?: continue
-          sendSerialized(
-            TransmissionMessage(
-              "offer",
-              event = retrievedEvent,
-              currentSerialNumber = IncrementOnly.serverSideMaxSerialNumber
+          if(retrievedEvent != null){
+            sendSerialized(
+              TransmissionMessage(
+                "offer",
+                event = retrievedEvent,
+                currentSerialNumber = IncrementOnly.serverSideMaxSerialNumber
+              )
             )
-          )
+          }
         } else if (transmissionMessage.type.lowercase() == "offer" && transmissionMessage.event != null) {
           restEventStoreService.storeEvent(transmissionMessage.event)
         }
         //Fix Inconsistency
-        val yourSerial = transmissionMessage.requestedSerialNumber
+        val yourSerial = transmissionMessage.currentSerialNumber
         val mySerial = IncrementOnly.serverSideMaxSerialNumber
         if (yourSerial != null && yourSerial < mySerial) {
           GlobalScope.launch {
+            println("Fixing Inconsistency... $yourSerial $mySerial")
             ((yourSerial + 1)..mySerial).forEach {
               val retrievedEvent = restEventStoreService.getEventBySerialNumber(it)
               if (retrievedEvent != null) {
